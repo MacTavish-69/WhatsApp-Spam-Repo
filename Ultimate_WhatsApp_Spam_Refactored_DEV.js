@@ -1,17 +1,43 @@
-/* Here is actual script to paste into console */
-// Written By MacTavish. Discord Tag: MacTavish#8517
+// This script works by creating a form that takes input like message, who to mention, number of times to message
+// and then dispatching those messages.
 
+/*
+ * Version 5.0.0
+ * ------------------------------------------------ Strategy -----------------------------------------------------------
+ * Store some config values which are used throughout the script and are changed very often.
+ * There are multiple functions which perform a part of the functionality required for spamming.
+ * Instead of duplicating code, these functions are called by other functions as needed.
+ * In future, these functions may get broken down into further smaller functions.
+ *
+ * Functions:
+ * createForm()
+ * getFormInput()
+ * mentionUser()
+ * handleMessage()
+ * spam()
+ * deleteForm()
+ * toggleDisplay()
+ */
+
+// Configs, update them when WhatsApp updates!
+var SELECTOR_WHATSAPP_MESSAGE_CONTAINER = "._13NKt";
+var SELECTOR_WHATSAPP_SEND_BUTTON = "._4sWnG";
+var SELECTOR_WHATSAPP_MAIN_CONTAINER = "#app";
+
+/**
+ * Create the form
+ */
 function createForm() {
-	
-  // Create a style tag to host style rules
-	let body = document.getElementById("app");
-	let style = document.createElement('style');
-	style.type = 'text/css';
-	style.innerHTML = `
+
+    // Create a style tag to host style rules
+    let body = document.querySelector(SELECTOR_WHATSAPP_MAIN_CONTAINER);
+    let style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = `
 	  .hide-me {
       display: none !important;
     }
-	 .form-box { 
+	 .form-box {
       color: silver;
       width: 50%;
       border: 1px solid gray;
@@ -106,31 +132,39 @@ function createForm() {
       color: yellow;
       text-decoration: none;
     }
+    .text-center {
+      text-align: center;
+    }
+    .ml-4 {
+      margin-left: 1rem;
+    }
+    .mr-4 {
+      margin-right: 1rem;
+    }
     `;
 
-	document.getElementsByTagName('head')[0].appendChild(style);
+    document.getElementsByTagName('head')[0].appendChild(style);
 
-  // Create a form and add elements to it
-	let form = document.createElement("form");
-  form.id = "form";
-	form.classList.add("form-box");
-	form.innerHTML = `
+    // Create a form and add elements to it
+    let form = document.createElement("form");
+    form.id = "form";
+    form.classList.add("form-box");
+    form.innerHTML = `
 	  <span class="radio-input-wrapper">
       <label for="sticker-checkbox">Send a Sticker?</label>
       <input id="sticker-checkbox" class="radio-input" type="checkbox" name="toggle_checkbox" onclick="toggleDisplay()">
     </span>
 
-    <div class="sticker-wrapper">
+    <div class="sticker-wrapper text-center ml-4 mr-4">
       <h4> Please click on sticker of your choice and fill in how many times you want to send it. </h4>
-      <p> Your Selected Sticker is: </p>
     </div>
 
-    <a href="#" class="X delete" onclick="delete_form()"></a>
+    <a href="#" class="X delete" onclick="deleteForm()"></a>
 
-    <div id="text-msg-form-container">
+    <div id="form_text-container">
 	    <input class="text-input" id="message" type="text" name="message" placeholder="Type your message" required>
-	    <input class="text-input" id="mention" type="text" name="" placeholder="YourContactName">
-	    <input class="text-input" id="ph_no" type="text" name=""  placeholder="YourContactNumber">
+	    <input class="text-input" id="name" type="text" name="name" placeholder="YourContactName">
+	    <input class="text-input" id="mobile" type="text" name="mobile"  placeholder="YourContactNumber">
 	    <span class="radio-input-wrapper">
 	      <label for="start">Add @mention to start</label>
 	      <input id="start" class="radio-input" type="radio" name="addTo" value="start">
@@ -141,163 +175,139 @@ function createForm() {
 	    </span>
     </div>
 
-    <input id="counter" class="text-input" id="message" type="number" name="counter" placeholder="For how many times?" required>
-    <button id="fire-text-msg" class="spam-btns" type="button" name="spam-btn" onclick="spam()">Spam it !</button>
+    <input id="strike-counter" class="text-input" type="number" name="strike-counter" placeholder="For how many times?" required>
+    <button id="launch" class="spam-btns" type="button" name="spam-btn" onclick="spam()">Spam it !</button>
     `;
-	body.appendChild(form);
+    body.appendChild(form);
 }
+
+// Create the form. Form must be created before setting any globals since they mainly use elements generated via this form
 createForm();
 
-  /* 
-   * A place for GLOBAL VARIABLES. DO NOT MUTATE! .
-  */
-  var form = document.getElementById("form");
-  var toggle_checkbox = document.getElementById("sticker-checkbox");
-	var text_msg_form_container = document.getElementById("text-msg-form-container");
-	var text_msg_spam_btn = document.getElementById("fire-text-msg");
-  var count = document.getElementById("counter");  
+/*
+ * A place for GLOBAL VARIABLES. DO NOT MUTATE! .
+*/
+var spamForm = document.getElementById("form");
+var switchToStickerCheckbox = document.getElementById("sticker-checkbox");
+var formTextContainer = document.getElementById("form_text-container");
+var launchButton = document.getElementById("launch");
+var strikeCount = document.getElementById("strike-counter");
+var whatsappMessageContainer = document.querySelectorAll(SELECTOR_WHATSAPP_MESSAGE_CONTAINER)[1];
 
-  // Get the container to append the messge to 
-  // Update the message Container Class to since Whatsapp web has updated it.
-  // Update FROM *_2S1VP* TO *_3FRCZ*
-  var message_container = document.querySelectorAll("._3FRCZ")[1];
-  /*
-   * END of GLOBAL VARIABLES
-  */
+// Send Button can not be acquired here since it is generated when some input is provided to the text container
+// Please use the Selector to get button via querySelector wherever needed.
+// var whatsappSendButton = document.querySelector(SELECTOR_WHATSAPP_SEND_BUTTON);
 
-function addMention() {
+/*
+ * END of GLOBAL VARIABLES
+*/
 
-  /*
-   * message & text has to be in addMention() because of the adding mention to the end of message.
-   * If no message is created first then Mention will always be before the message since message will be
-     Created Later
-  */
-  // Get the message
-  let message = document.getElementById("message").value;
-
-  // Create a text node from set message to append to Message Container Later
-  let text = document.createTextNode(" "+message+" ");
-
-
-  let contact_name = document.getElementById("mention").value;
-  let contact_number = document.getElementById("ph_no").value;
-
-  if (contact_name && contact_number !== '') {
-    let span_container = document.createElement("span");
-
-    // Apply required attributes to it
-    span_container.setAttribute("class", "copyable-text selectable-text");
-    span_container.setAttribute("data-mention-jid", contact_number +"@c.us");
-    span_container.setAttribute("data-original-name", contact_name);
-    span_container.setAttribute("data-plain-text", contact_name);
-
-    let span_at_symbol = document.createElement("span");
-    span_at_symbol.setAttribute("class", "at-symbol");
-
-    let span_name = document.createElement("span");
-    span_name.innerHTML = contact_name;
-
-    // Lets append elements
-    span_container.appendChild(span_at_symbol);
-    span_container.appendChild(span_name);
-
-    if (document.getElementById("start").checked) {
-      message_container.appendChild(span_container);
-      message_container.appendChild(text);
-    }
-    if (document.getElementById("end").checked) {
-      message_container.appendChild(text);
-      message_container.appendChild(span_container);
-    }
-  }
-  // If Mention feature is not used then use else block
-  else {
-    message_container.appendChild(text);
-  }
-}
-
-function spam() {
-
-  // Get value of Counter to spam messages
-  counter = count.value;
-  counter = parseInt(counter);
-
-  for (let i = 0; i < counter; i++) {
-    addMention();
-
-    // Dispatching an input event so whatsapp generates Send button
-    var event = document.createEvent('Event');
-    event.initEvent('input', true, true);
-    message_container.dispatchEvent(event);
-
-    /* 
-     * Emulate the click event on button to send message
-     * Update the Send Button Class since Whatsapp web has updated it.
-     * Update FROM *_35EW6* TO *_1U1xa*
-    */
-    document.querySelector("._1U1xa").click();
-  }
-}
-
-function stickerSpam() {
-
-		// Get the length of all the sent sticker Array
-		let stickers_length = document.querySelectorAll("._11S5R").length;
-
-		// The last sent sticker is the one we need
-		let sent_sticker = document.querySelectorAll("._11S5R")[stickers_length-1];
-		let sent_sticker_SRC = sent_sticker.getAttribute("src");
-
-		// Get the smiley button so we can navigate precisely to sticker
-		let smiley = document.querySelector("._2Q56Q");
-		// Open the smiley button so we can get stickers menu
-		smiley.click();
-
-		// Get the desired sticker using SRC of sent sticker
-		// Refer to https://stackoverflow.com/questions/37081721/use-variables-in-document-queryselector for CSS.escape
-		let sticker = document.querySelectorAll("img[src=" +CSS.escape(sent_sticker_SRC)+ "]");
-		let sticker_length = sticker.length;
-
-		// Get the number of times to spam sticker
-		let counter = count.value;
-
-		for (let i = 0; i < counter; i++) {
-			sticker[sticker_length-1].click();
-		}
-
-}
-
+/**
+ * Toggle Display between Text Spam & Sticker Spam
+ */
 function toggleDisplay () {
-
-	if (toggle_checkbox.checked === false) {
-		text_msg_form_container.classList.remove("hide-me");
-		text_msg_spam_btn.classList.remove("hide-me");
-
-		// Hide the button for Sticker Spam
-		document.getElementById("sticker-MRLS").classList.add("hide-me");
-	}
-	if (toggle_checkbox.checked === true) {
-		text_msg_form_container.classList.add("hide-me");
-		text_msg_spam_btn.classList.add("hide-me");
-
-		// create a Sticker Spam Fire button
-		if (document.getElementById("sticker-MRLS") === null) {
-			let sticker_spam_btn = document.createElement("div");
-			sticker_spam_btn.id = "sticker_spam_btn-wrapper";
-			sticker_spam_btn.innerHTML = `
-			<button id="sticker-MRLS" class="spam-btns"
-				type="button" name="spam-btn" onclick="stickerSpam()">Spam Sticker !</button>
-			`
-			// Append to the form
-			let form = document.getElementById("form");
-			form.appendChild(sticker_spam_btn);
-		}
-		document.getElementById("sticker-MRLS").classList.remove("hide-me");
-	}
+    // Some other time :(
 }
 
-function delete_form() {
+/**
+ * Delete/Close the form
+ */
+function deleteForm() {
+    spamForm.remove();
+}
 
-  // Ah, JS doesn't allow direct removal of a node. Go to parent and then remove a specific child.
-  form.parentNode.removeChild(form);
+/**
+ * get all the input of form and return an object
+ * @return Object
+ */
+function getFormInput() {
+    let formInput = {message: "", contactName: "", contactNumber: "", counter: "", mentionAtStart: "", mentionAtEnd: ""};
+
+    // Insert all form inputs value in to the object
+    formInput.message = document.getElementById("message").value;
+    formInput.contactName = document.getElementById("name").value;
+    formInput.contactNumber = document.getElementById("mobile").value;
+    formInput.counter = parseInt(strikeCount.value);
+    formInput.mentionAtStart = document.getElementById("start").checked;
+    formInput.mentionAtEnd = document.getElementById("end").checked;
+
+    return formInput;
+}
+
+/**
+ * mention the user by preparing the container element that wraps the markup which mentions a user.
+ * @return HTML Element
+ */
+function mentionUser() {
+    var formInput = getFormInput();
+
+    // Generate the markup for Mentioning if Contact Name & Number is provided
+    if (formInput.contactName != '' && formInput.contactNumber != '') {
+        let spanContainer = document.createElement("span");
+
+        // Apply required attributes to it
+        spanContainer.setAttribute("class", "copyable-text selectable-text");
+        spanContainer.setAttribute("data-mention-jid", formInput.contactNumber +"@c.us");
+        spanContainer.setAttribute("data-original-name", formInput.contactName);
+        spanContainer.setAttribute("data-plain-text", formInput.contactName);
+
+        let span_at_symbol = document.createElement("span");
+        span_at_symbol.setAttribute("class", "at-symbol");
+
+        let span_name = document.createElement("span");
+        span_name.innerHTML = formInput.contactName;
+
+        // Lets append elements
+        spanContainer.appendChild(span_at_symbol);
+        spanContainer.appendChild(span_name);
+
+        return spanContainer;
+    }
+}
+
+/**
+ * Append the message & mention User markup (if applicable) to the Message Container of WhatsApp Web
+ */
+function handleMessage() {
+    let formInput = getFormInput();
+    let mentionedUser = mentionUser();
+
+    // Create a text node (that contains message to send)
+    let text = document.createTextNode(" "+formInput.message+" ");
+
+    // Add the (message to send) to the WhatsApp Message Container
+    if (formInput.mentionAtStart) {
+        whatsappMessageContainer.appendChild(mentionedUser);
+        whatsappMessageContainer.appendChild(text);
+    }
+    else if (formInput.mentionAtEnd) {
+        whatsappMessageContainer.appendChild(text);
+        whatsappMessageContainer.appendChild(mentionedUser);
+    }
+    else {
+        whatsappMessageContainer.appendChild(text);
+    }
+}
+
+/**
+ * Spam the message as per the value given in Counter.
+ */
+function spam() {
+    let formInput = getFormInput();
+
+    for (let i = 0; i < formInput.counter; i++) {
+
+        // ready to fire!
+        handleMessage();
+
+        // Generating Fire event!
+        // Dispatching an input event so whatsapp generates Send button
+        var event = document.createEvent('Event');
+        event.initEvent('input', true, true);
+        whatsappMessageContainer.dispatchEvent(event);
+
+        // Get the button & Launch the Strike!
+        let whatsappSendButton = document.querySelector(SELECTOR_WHATSAPP_SEND_BUTTON);
+        whatsappSendButton.click();
+    }
 }
