@@ -30,4 +30,5 @@ This decision was inspired by Russian Invasion of Ukraine. Let's spam with text 
 and spams us with Nukes.
 
 Lastly, If you can reach Putin on WhatsApp, I think it would be good use to spam him to tell him to stop
-this un-necessary bloodshed and let the people live in peace!```
+this un-necessary bloodshed and let the people live in peace!
+```
