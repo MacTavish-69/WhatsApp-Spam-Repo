@@ -1,4 +1,4 @@
-# Whatsapp-Spam
+# WhatsApp-Spam-Script
 This repository contains the script to send a for a given number of times message on Whatsapp Web
 
 ### Disclaimer
@@ -13,8 +13,8 @@ to take care of.
 First, let's make it clear that it only works on Whatsapp Web.
 Open the whatsapp web, Access the developer tools on your browser. For Chrome, it's Ctrl+Shift+i
 Go to "Console" tab 
-Copy the script from "Ultimate_WhatsApp_Spam_Refactored_DEV" OR "Ultimate_WhatsApp_Spam_Refactored_Min". Both files
-contain same code. "Ultimate_WhatsApp_Spam_Refactored_Min" just contains the code in minified form.
+Copy the script from ``Ultimate_WhatsApp_Spam_Refactored_DEV`` OR ``Ultimate_WhatsApp_Spam_Refactored_Min``. Both files
+contain same code. ``Ultimate_WhatsApp_Spam_Refactored_Min`` just contains the code in minified form.
 Bang 'Enter" once you have pasted script in console tab.
 
 PDF Documentation with Screenshots is available in repository and [Google Drive](https://drive.google.com/file/d/1fAkCxhbL21nXTe21yhO4M4urmr67GKI7/view?usp=sharing).
@@ -22,11 +22,12 @@ PDF Documentation with Screenshots is available in repository and [Google Drive]
 ### Update March 07 2022
 I have decided to make the repository public (let's hope there won't be any mess for me). Not only that, I am making it
 open source. If anyone wants to extend it, you are welcome. At the moment, I do not have any plans/idea about pull requests
-stuff. However, anyone is free to fork it and do whatever you want it. Here is a 
-[Medium article](https://medium.com/@mactavish10101/power-of-dom-manipulation-create-a-simple-spam-script-for-whatsapp-web-7d2cdacaa852) 
-that presents the very basic version of this script. That basic version got expanded into this script.
+stuff. However, anyone is free to fork it and do whatever you want it. If you build anything on top of it, an attribution 
+will be appreciated.
+
+```
 This decision was inspired by Russian Invasion of Ukraine. Let's spam with text before Mr. Putin goes nuts
 and spams us with Nukes.
 
 Lastly, If you can reach Putin on WhatsApp, I think it would be good use to spam him to tell him to stop
-this un-necessary bloodshed and let the people live in peace!
+this un-necessary bloodshed and let the people live in peace!```
