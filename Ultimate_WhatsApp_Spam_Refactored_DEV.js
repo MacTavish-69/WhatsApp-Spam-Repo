@@ -184,23 +184,28 @@ function createForm() {
 // Create the form. Form must be created before setting any globals since they mainly use elements generated via this form
 createForm();
 
-/*
- * A place for GLOBAL VARIABLES. DO NOT MUTATE! .
-*/
+/* ------------------- A place for GLOBAL VARIABLES. DO NOT MUTATE! ------------------- */
 var spamForm = document.getElementById("form");
 var switchToStickerCheckbox = document.getElementById("sticker-checkbox");
 var formTextContainer = document.getElementById("form_text-container");
 var launchButton = document.getElementById("launch");
 var strikeCount = document.getElementById("strike-counter");
 var whatsappMessageContainer = document.querySelectorAll(SELECTOR_WHATSAPP_MESSAGE_CONTAINER)[1];
+var debugMode = true;
 
 // Send Button can not be acquired here since it is generated when some input is provided to the text container
 // Please use the Selector to get button via querySelector wherever needed.
 // var whatsappSendButton = document.querySelector(SELECTOR_WHATSAPP_SEND_BUTTON);
+/* ------------------- END of GLOBAL VARIABLES ------------------- */
 
-/*
- * END of GLOBAL VARIABLES
-*/
+/**
+ * Log messages to console when debugMode is ON.
+ */
+function logDebugMessage(message) {
+  if (debugMode) {
+    console.log(message);
+  }
+}
 
 /**
  * Toggle Display between Text Spam & Sticker Spam
