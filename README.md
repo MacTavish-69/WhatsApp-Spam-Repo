@@ -32,3 +32,8 @@ and spams us with Nukes.
 Lastly, If you can reach Putin on WhatsApp, I think it would be good use to spam him to tell him to stop
 this un-necessary bloodshed and let the people live in peace!
 ```
+
+## Retirement Update
+I have carried on this script from its very basic code only version to GUI version for about 2yrs. However, soon (approximately 2-3 months) after making it open source, WhatsApp implemented a DOM Integrity based mechanism which simply discards/ignores any modifications to the dom by the script. I have tried to look into the topic but haven't found anything that would help me. If you know about this stuff, please reach out to me and we can find out a way to bring it back to life.
+
+Until then, Rest in Peace!
