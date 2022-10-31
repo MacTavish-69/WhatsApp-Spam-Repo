@@ -275,7 +275,12 @@ function mentionUser() {
  */
 function handleMessage() {
     let formInput = getFormInput();
+    logDebugMessage("Form Input:");
+    logDebugMessage(formInput);
+
     let mentionedUser = mentionUser();
+    logDebugMessage("New created element to mention user:");
+    logDebugMessage(mentionedUser);
 
     // Create a text node (that contains message to send)
     let text = document.createTextNode(" "+formInput.message+" ");
@@ -304,6 +309,9 @@ function spam() {
 
         // ready to fire!
         handleMessage();
+
+        logDebugMessage("Message Container Ready for spamming");
+        logDebugMessage(whatsappMessageContainer);
 
         // Generating Fire event!
         // Dispatching an input event so whatsapp generates Send button
